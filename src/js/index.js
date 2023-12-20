@@ -5,4 +5,7 @@
  * @version 1.0.0
  */
 
-console.log('TODO: Start working on the assignment')
+import './components/my-window'
+
+const myPWD = document.createElement('my-pwd')
+document.querySelector('body').append(myPWD)
