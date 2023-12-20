@@ -5,10 +5,22 @@
  * @version 1.0.0
  */
 
+import '../my-window'
+
 // Define template.
 const template = document.createElement('template')
 template.innerHTML = `
-My PWD
+<style>
+  #container {
+    height: 100vh;
+    width: 100vw;
+  }
+</style>
+<div id="container">
+  <my-window title="My app">
+    Window content.
+  </my-window>
+</div>
 `
 
 customElements.define(

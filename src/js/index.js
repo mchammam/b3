@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import './components/my-window'
+import './components/my-pwd'
 
 const myPWD = document.createElement('my-pwd')
 document.querySelector('body').append(myPWD)
