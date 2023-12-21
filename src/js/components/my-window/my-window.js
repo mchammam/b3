@@ -11,16 +11,43 @@ template.innerHTML = `
 <style>
   :host {
     position: absolute;
-    top: 0;
-    left: 0;
-    border: 1px solid;
+    border-radius: 0.1rem;
+    background:  #374151;
+    box-shadow: rgba(22, 25, 32, 0.25) 0px 25px 50px -12px;
   }
-  #title {
+  #title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid;
     cursor: default;
     user-select: none;
   }
+  #title-bar button {
+    padding: 0.3rem;
+    background: #1F2937;
+    border-radius: 1rem;
+    border: 2px solid #1F2937;
+    font-weight: bold;
+    color: #E5E7EB;
+    cursor: pointer;
+    transition: all 150ms;
+  }
+  button:hover, button:focus {
+    background: #111827;
+    box-shadow: 0 3px 10px rgba(22, 25, 32, 0.25);
+  }
+  slot {
+    display: block;
+    padding: 1rem;
+  }
 </style>
-<div id="title"></div>
+<div id="title-bar">
+  <span id="title"></span>
+  <button id="close">X</button>
+</div>
+
 <slot>
 </slot>
 `
@@ -46,11 +73,11 @@ customElements.define(
     #boundHandleMouseDown
 
     /**
-     * The user nickname.
+     * Bound event handler.
      *
-     * @type {string}
+     * @type {Function}
      */
-    #nickname
+    #boundHandleCloseButtonClick
 
     /**
      * Creates an instance of the current type.
@@ -104,7 +131,7 @@ customElements.define(
        *
        * @param {MouseEvent} event - The mouse down event.
        */
-      this.shadowRoot.querySelector('#title').addEventListener('mousedown', this.#boundHandleMouseDown = event => {
+      this.shadowRoot.querySelector('#title-bar').addEventListener('mousedown', this.#boundHandleMouseDown = event => {
         if (event.button !== 0) {
           return
         }
@@ -130,13 +157,21 @@ customElements.define(
           window.removeEventListener('mousemove', this.#boundHandleMouseMove)
         }, { once: true })
       })
+
+      /**
+       * Method to handle click on close button.
+       */
+      this.shadowRoot.querySelector('#close').addEventListener('click', this.#boundHandleCloseButtonClick = () => {
+        this.remove()
+      })
     }
 
     /**
      * Called after the element has been removed from the DOM.
      */
     disconnectedCallback () {
-      this.shadowRoot.querySelector('#title').removeEventListener('mousedown', this.#boundHandleMouseDown)
+      this.shadowRoot.querySelector('#title-bar').removeEventListener('mousedown', this.#boundHandleMouseDown)
+      this.shadowRoot.querySelector('#close').removeEventListener('click', this.#boundHandleCloseButtonClick)
     }
   }
 )
