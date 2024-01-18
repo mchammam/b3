@@ -19,7 +19,7 @@ template.innerHTML = `
 </style>
 
 <my-dock>
-  <button title="Memory game" data-app="my-window">🎮</button>
+  <button title="Memory game" data-app="my-memory-game">🎮</button>
   <button title="Chat">💬</button>
   <button title="Notepad">🗒️</button>
 </my-dock>
