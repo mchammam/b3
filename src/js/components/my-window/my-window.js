@@ -19,6 +19,7 @@ template.innerHTML = `
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1.5rem;
     padding: 0.5rem 1rem;
     border-bottom: 1px solid;
     cursor: default;
@@ -45,7 +46,7 @@ template.innerHTML = `
 </style>
 <div id="title-bar">
   <span id="title"></span>
-  <button id="close">X</button>
+  <button id="close" title="Close">X</button>
 </div>
 
 <slot>
@@ -55,7 +56,7 @@ template.innerHTML = `
 customElements.define(
   'my-window',
   /**
-   * Represents a quiz-application element.
+   * Represents a my-window element.
    */
   class extends HTMLElement {
     /**
