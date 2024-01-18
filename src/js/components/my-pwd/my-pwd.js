@@ -6,6 +6,7 @@
  */
 
 import '../my-window'
+import '../my-dock'
 
 // Define template.
 const template = document.createElement('template')
@@ -15,6 +16,26 @@ template.innerHTML = `
     height: 100vh;
     width: 100vw;
   }
+  my-dock button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border-radius: 0rem;
+    border: 0px solid #1F2937;
+    height: 3rem;
+    width: 3rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #E5E7EB;
+    cursor: pointer;
+    transition: all 50ms;
+  }
+  my-dock button:hover {
+    border-bottom: 3px solid #1F2937;
+
+  }
+
 
 </style>
 <div id="container">
@@ -28,12 +49,17 @@ template.innerHTML = `
     Window content 3.
   </my-window>
 </div>
+<my-dock>
+  <button title="Memory game">🎮</button>
+  <button title="Chat">💬</button>
+  <button title="Notepad">🗒️</button>
+</my-dock>
 `
 
 customElements.define(
   'my-pwd',
   /**
-   * Represents a quiz-application element.
+   * Represents a my-pwd element.
    */
   class extends HTMLElement {
     /**
