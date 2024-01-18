@@ -28,6 +28,25 @@ template.innerHTML = `
     cursor: default;
     user-select: none;
   }
+  ::slotted(button) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border-radius: 0rem;
+    border: 0px solid #1F2937;
+    height: 3rem;
+    width: 3rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #E5E7EB;
+    cursor: pointer;
+    transition: all 50ms;
+  }
+  ::slotted(button:hover) {
+    border-bottom: 3px solid #1F2937;
+
+  }
 </style>
 
 <slot>
@@ -41,27 +60,6 @@ customElements.define(
    */
   class extends HTMLElement {
     /**
-     * Bound event handler.
-     *
-     * @type {Function}
-     */
-    #boundHandleMouseMove
-
-    /**
-     * Bound event handler.
-     *
-     * @type {Function}
-     */
-    #boundHandleMouseDown
-
-    /**
-     * Bound event handler.
-     *
-     * @type {Function}
-     */
-    #boundHandleCloseButtonClick
-
-    /**
      * Creates an instance of the current type.
      */
     constructor () {
@@ -72,88 +70,6 @@ customElements.define(
       this.attachShadow({ mode: 'open' }).append(
         template.content.cloneNode(true)
       )
-    }
-
-    /**
-     * Attributes to monitor for changes.
-     *
-     * @returns {string[]} A string array of attributes to monitor.
-     */
-    static get observedAttributes () {
-      return ['title', 'top', 'left']
-    }
-
-    /**
-     * Called when observed attribute(s) changes.
-     *
-     * @param {string} name - The attribute's name.
-     * @param {*} oldValue - The old value.
-     * @param {*} newValue - The new value.
-     */
-    attributeChangedCallback (name, oldValue, newValue) {
-      if (name === 'title' && oldValue !== newValue) {
-        this.shadowRoot.querySelector('#title').textContent = newValue
-      }
-
-      if (name === 'top' && oldValue !== newValue) {
-        this.shadowRoot.host.style.top = newValue + 'px'
-      }
-
-      if (name === 'left' && oldValue !== newValue) {
-        this.shadowRoot.host.style.left = newValue + 'px'
-      }
-    }
-
-    /**
-     * Called after the element is inserted into the DOM.
-     */
-    connectedCallback () {
-      /**
-       * Method to handle mouse down on window title div (and move the window).
-       *
-       * @param {MouseEvent} event - The mouse down event.
-       */
-      this.shadowRoot.querySelector('#title-bar').addEventListener('mousedown', this.#boundHandleMouseDown = event => {
-        if (event.button !== 0) {
-          return
-        }
-
-        const windowTop = this.getAttribute('top') ?? 0
-        const mouseToWindowOffsetY = event.pageY - windowTop
-
-        const windowLeft = this.getAttribute('left') ?? 0
-        const mouseToWindowOffsetX = event.pageX - windowLeft
-
-        // TODO: is this the best way?
-        /**
-         * Method to handle mouse move.
-         *
-         * @param {MouseEvent} event - The mouse move event.
-         */
-        window.addEventListener('mousemove', this.#boundHandleMouseMove = event => {
-          this.setAttribute('top', event.pageY - mouseToWindowOffsetY)
-          this.setAttribute('left', event.pageX - mouseToWindowOffsetX)
-        })
-
-        window.addEventListener('mouseup', event => {
-          window.removeEventListener('mousemove', this.#boundHandleMouseMove)
-        }, { once: true })
-      })
-
-      /**
-       * Method to handle click on close button.
-       */
-      this.shadowRoot.querySelector('#close').addEventListener('click', this.#boundHandleCloseButtonClick = () => {
-        this.remove()
-      })
-    }
-
-    /**
-     * Called after the element has been removed from the DOM.
-     */
-    disconnectedCallback () {
-      this.shadowRoot.querySelector('#title-bar').removeEventListener('mousedown', this.#boundHandleMouseDown)
-      this.shadowRoot.querySelector('#close').removeEventListener('click', this.#boundHandleCloseButtonClick)
     }
   }
 )
