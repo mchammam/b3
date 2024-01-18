@@ -12,45 +12,14 @@ import '../my-dock'
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
-  #container {
+  :host {
     height: 100vh;
     width: 100vw;
   }
-  my-dock button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: transparent;
-    border-radius: 0rem;
-    border: 0px solid #1F2937;
-    height: 3rem;
-    width: 3rem;
-    font-size: 2rem;
-    font-weight: bold;
-    color: #E5E7EB;
-    cursor: pointer;
-    transition: all 50ms;
-  }
-  my-dock button:hover {
-    border-bottom: 3px solid #1F2937;
-
-  }
-
-
 </style>
-<div id="container">
-  <my-window title="My app">
-    Window content.
-  </my-window>
-  <my-window title="My app 2">
-    Window content 2.
-  </my-window>
-  <my-window title="My app 3">
-    Window content 3.
-  </my-window>
-</div>
+
 <my-dock>
-  <button title="Memory game">🎮</button>
+  <button title="Memory game" data-app="my-window">🎮</button>
   <button title="Chat">💬</button>
   <button title="Notepad">🗒️</button>
 </my-dock>
@@ -91,8 +60,30 @@ customElements.define(
           return
         }
 
-        this.#highestWindowZIndex++
-        event.target.style.zIndex = this.#highestWindowZIndex
+        event.target.style.zIndex = ++this.#highestWindowZIndex
+      })
+
+      this.shadowRoot.querySelector('my-dock').addEventListener('click', async event => {
+        if (event.target.nodeName !== 'BUTTON') {
+          return
+        }
+
+        const newWindow = document.createElement('my-window')
+
+        const numberOfWindows = this.shadowRoot.querySelectorAll('my-window').length
+        newWindow.setAttribute('top', numberOfWindows * 15 + 100)
+        newWindow.setAttribute('left', numberOfWindows * 15 + 100)
+
+        newWindow.setAttribute('title', event.target.getAttribute('title'))
+        newWindow.style.zIndex = ++this.#highestWindowZIndex
+        newWindow.innerHTML = 'Loading...'
+
+        this.shadowRoot.append(newWindow)
+
+        const appName = event.target.getAttribute('data-app')
+        await import(`../${appName}`)
+        const newApp = document.createElement(appName)
+        newWindow.replaceChildren(newApp)
       })
     }
 
