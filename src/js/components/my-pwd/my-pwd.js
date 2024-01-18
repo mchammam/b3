@@ -15,10 +15,17 @@ template.innerHTML = `
     height: 100vh;
     width: 100vw;
   }
+
 </style>
 <div id="container">
   <my-window title="My app">
     Window content.
+  </my-window>
+  <my-window title="My app 2">
+    Window content 2.
+  </my-window>
+  <my-window title="My app 3">
+    Window content 3.
   </my-window>
 </div>
 `
@@ -30,11 +37,11 @@ customElements.define(
    */
   class extends HTMLElement {
     /**
-     * The user nickname.
+     * The highest z-index of windows.
      *
      * @type {string}
      */
-    #nickname
+    #highestWindowZIndex = 0
 
     /**
      * Creates an instance of the current type.
@@ -53,7 +60,14 @@ customElements.define(
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      this.shadowRoot.addEventListener('mousedown', event => {
+        if (event.target.nodeName !== 'MY-WINDOW') {
+          return
+        }
 
+        this.#highestWindowZIndex++
+        event.target.style.zIndex = this.#highestWindowZIndex
+      })
     }
 
     /**
