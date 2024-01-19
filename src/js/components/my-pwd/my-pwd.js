@@ -7,6 +7,7 @@
 
 import '../my-window'
 import '../my-dock'
+import '../my-spinner'
 
 // Define template.
 const template = document.createElement('template')
@@ -76,7 +77,7 @@ customElements.define(
 
         newWindow.setAttribute('title', event.target.getAttribute('title'))
         newWindow.style.zIndex = ++this.#highestWindowZIndex
-        newWindow.innerHTML = 'Loading...'
+        newWindow.append(document.createElement('my-spinner'))
 
         this.shadowRoot.append(newWindow)
 

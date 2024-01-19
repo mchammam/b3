@@ -40,7 +40,9 @@ template.innerHTML = `
     box-shadow: 0 3px 10px rgba(22, 25, 32, 0.25);
   }
   slot {
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 1rem;
   }
 </style>
