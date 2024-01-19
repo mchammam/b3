@@ -49,6 +49,18 @@ customElements.define(
    * Represents a memory game app
    */
   class extends HTMLElement {
+    /**
+     * Make it possible to remove the event listeners.
+     *
+     * @type {AbortController}
+     */
+    #abortController = new AbortController()
+
+    /**
+     * Number of attempts made by the player.
+     *
+     * @type {number}
+     */
     #attempts = 0
 
     /**
@@ -71,35 +83,41 @@ customElements.define(
       this.shadowRoot
         .querySelectorAll('#choose-board-size button')
         .forEach((button) => {
-          button.addEventListener('click', (event) => {
-            const boardSize = event.target.getAttribute('data-board-size')
+          button.addEventListener(
+            'click',
+            (event) => {
+              const boardSize = event.target.getAttribute('data-board-size')
 
-            this.shadowRoot
-              .querySelector('#choose-board-size')
-              .classList.add('hidden')
-            this.shadowRoot
-              .querySelector('#active-game')
-              .classList.remove('hidden')
-            this.shadowRoot
-              .querySelector('my-memory-game')
-              .removeAttribute('boardsize')
-            this.shadowRoot
-              .querySelector('my-memory-game')
-              .setAttribute('boardsize', boardSize)
+              this.shadowRoot
+                .querySelector('#choose-board-size')
+                .classList.add('hidden')
+              this.shadowRoot
+                .querySelector('#active-game')
+                .classList.remove('hidden')
+              this.shadowRoot
+                .querySelector('my-memory-game')
+                .removeAttribute('boardsize')
+              this.shadowRoot
+                .querySelector('my-memory-game')
+                .setAttribute('boardsize', boardSize)
 
-            this.shadowRoot
-              .querySelector('#time')
-              .replaceChildren(document.createElement('my-timer'))
-          })
+              this.shadowRoot
+                .querySelector('#time')
+                .replaceChildren(document.createElement('my-timer'))
+            },
+            { signal: this.#abortController.signal }
+          )
         })
 
-      this.shadowRoot
-        .querySelector('my-memory-game')
-        .addEventListener('memory-game:tiles-match', (event) => {
+      this.shadowRoot.querySelector('my-memory-game').addEventListener(
+        'memory-game:tiles-match',
+        (event) => {
           this.#attempts++
           this.shadowRoot.querySelector('#attempts').textContent =
             this.#attempts
-        })
+        },
+        { signal: this.#abortController.signal }
+      )
 
       this.shadowRoot
         .querySelector('my-memory-game')
@@ -109,9 +127,9 @@ customElements.define(
             this.#attempts
         })
 
-      this.shadowRoot
-        .querySelector('my-memory-game')
-        .addEventListener('memory-game:game-over', (event) => {
+      this.shadowRoot.querySelector('my-memory-game').addEventListener(
+        'memory-game:game-over',
+        (event) => {
           this.shadowRoot.querySelector('my-timer').setAttribute('stopped', '')
 
           setTimeout(() => {
@@ -123,18 +141,18 @@ customElements.define(
               .classList.remove('hidden')
 
             this.shadowRoot.querySelector('#final-attempts').textContent =
-            this.#attempts
+              this.#attempts
             this.shadowRoot
               .querySelector('#final-time')
-              .replaceChildren(
-                this.shadowRoot.querySelector('my-timer')
-              )
+              .replaceChildren(this.shadowRoot.querySelector('my-timer'))
           }, 1000)
-        })
+        },
+        { signal: this.#abortController.signal }
+      )
 
-      this.shadowRoot
-        .querySelector('#play-again')
-        .addEventListener('click', (event) => {
+      this.shadowRoot.querySelector('#play-again').addEventListener(
+        'click',
+        (event) => {
           this.shadowRoot
             .querySelector('#choose-board-size')
             .classList.remove('hidden')
@@ -143,12 +161,17 @@ customElements.define(
           this.#attempts = 0
           this.shadowRoot.querySelector('#attempts').textContent =
             this.#attempts
-        })
+        },
+        { signal: this.#abortController.signal }
+      )
     }
 
     /**
      * Called after the element has been removed from the DOM.
      */
-    disconnectedCallback () {}
+    disconnectedCallback () {
+      // Remove the event listener.
+      this.#abortController.abort()
+    }
   }
 )
