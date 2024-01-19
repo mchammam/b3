@@ -6,6 +6,7 @@
  */
 
 import '../my-memory-game'
+import '../my-timer'
 
 /*
  * Define template.
@@ -26,12 +27,15 @@ template.innerHTML = `
 </div>
 
 <div id="active-game" class="hidden">
-  Attempts: <span id="attempts"></span>
+  <div>Attempts: <span id="attempts"></span></div>
+  <div>Time: <span id="time"></span> seconds.</div>
   <my-memory-game boardsize="small"></my-memory-game>
 </div>
 
 <div id="game-over" class="hidden">
   Game over.
+  <div>Attempts: <span id="final-attempts"></span></div>
+  <div>Time: <span id="final-time"></span> seconds.</div>
   <button id="play-again">Play again</button>
 </div>
 `
@@ -78,10 +82,14 @@ customElements.define(
               .classList.remove('hidden')
             this.shadowRoot
               .querySelector('my-memory-game')
-              .setAttribute('boardsize', '')
+              .removeAttribute('boardsize')
             this.shadowRoot
               .querySelector('my-memory-game')
               .setAttribute('boardsize', boardSize)
+
+            this.shadowRoot
+              .querySelector('#time')
+              .replaceChildren(document.createElement('my-timer'))
           })
         })
 
@@ -104,6 +112,8 @@ customElements.define(
       this.shadowRoot
         .querySelector('my-memory-game')
         .addEventListener('memory-game:game-over', (event) => {
+          this.shadowRoot.querySelector('my-timer').setAttribute('stopped', '')
+
           setTimeout(() => {
             this.shadowRoot
               .querySelector('#active-game')
@@ -111,6 +121,14 @@ customElements.define(
             this.shadowRoot
               .querySelector('#game-over')
               .classList.remove('hidden')
+
+            this.shadowRoot.querySelector('#final-attempts').textContent =
+            this.#attempts
+            this.shadowRoot
+              .querySelector('#final-time')
+              .replaceChildren(
+                this.shadowRoot.querySelector('my-timer')
+              )
           }, 1000)
         })
 
