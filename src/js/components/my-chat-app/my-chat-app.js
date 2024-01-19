@@ -16,9 +16,18 @@ template.innerHTML = `
     }
   </style>
 
-<div class="container">
-  container
+<div id="nickname-form">
+
 </div>
+<div>
+  <ul id="my-chat-flow">
+    
+  </ul>
+</div>
+<form>
+  <textarea></textarea>
+  <button type="submit">Send</button>
+</form>
 `
 
 /*
@@ -37,6 +46,10 @@ customElements.define(
      */
     #abortController = new AbortController()
 
+    #socket = new WebSocket('wss://courselab.lnu.se/message-app/socket')
+
+    #username = 'testuser'
+
     /**
      * Creates an instance of the current type.
      */
@@ -54,7 +67,41 @@ customElements.define(
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      this.shadowRoot.querySelector('form').addEventListener('submit', event => {
+        event.preventDefault()
 
+        if (this.#socket.readyState !== 1) {
+          console.log('Not ready!')
+        }
+
+        const message = this.shadowRoot.querySelector('textarea').value
+
+        this.#socket.send(JSON.stringify({
+          type: 'message',
+          data: message,
+          username: this.#username,
+          channel: '1',
+          key: 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd'
+        }))
+
+        this.shadowRoot.querySelector('textarea').value = ''
+      },
+      { signal: this.#abortController.signal }
+      )
+
+      this.#socket.addEventListener('message', event => {
+        const data = JSON.parse(event.data)
+
+        if (data.type !== 'message') {
+          return
+        }
+
+        const li = document.createElement('li')
+
+        li.textContent = `${data.username}: ${data.data}`
+
+        this.shadowRoot.querySelector('#my-chat-flow').append(li)
+      })
     }
 
     /**
