@@ -22,7 +22,6 @@ Default value: large
 
 ```html
 <my-memory-game></my-memory-game>
-</my-memory-gam>
 ```
 
 ![Example](./.readme/example.gif)
