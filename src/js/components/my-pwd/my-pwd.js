@@ -21,7 +21,7 @@ template.innerHTML = `
 
 <my-dock>
   <button title="Memory game" data-app="my-memory-game-app">🎮</button>
-  <button title="Chat">💬</button>
+  <button title="Chat" data-app="my-chat-app">💬</button>
   <button title="Notepad">🗒️</button>
 </my-dock>
 `
