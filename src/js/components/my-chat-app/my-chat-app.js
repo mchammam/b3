@@ -5,6 +5,9 @@
  * @version 1.0.0
  */
 
+import '../my-chat-bubbles-container'
+import '../my-chat-bubble'
+
 /*
  * Define template.
  */
@@ -19,11 +22,11 @@ template.innerHTML = `
 <div id="nickname-form">
 
 </div>
+
 <div>
-  <ul id="my-chat-flow">
-    
-  </ul>
+  <my-chat-bubbles-container></my-chat-bubbles-container>
 </div>
+
 <form>
   <textarea></textarea>
   <button type="submit">Send</button>
@@ -96,11 +99,14 @@ customElements.define(
           return
         }
 
-        const li = document.createElement('li')
+        const chatBubble = document.createElement('my-chat-bubble')
 
-        li.textContent = `${data.username}: ${data.data}`
+        chatBubble.setAttribute('username', data.username)
+        data.username === this.#username && chatBubble.setAttribute('self', '')
 
-        this.shadowRoot.querySelector('#my-chat-flow').append(li)
+        chatBubble.textContent = `${data.data}`
+
+        this.shadowRoot.querySelector('my-chat-bubbles-container').append(chatBubble)
       })
     }
 
