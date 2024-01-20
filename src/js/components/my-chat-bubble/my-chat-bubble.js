@@ -12,13 +12,13 @@ template.innerHTML = `
   :host {
     position: relative;
     margin-right: auto;
-    margin-left: 0;
     padding: 0.2rem 0.5rem;
     border-radius: 0 10px 10px 10px;
     background-color: #111827;
   }
   :host([self]) {
     margin-left: auto;
+    margin-right: 0;
     border-radius: 10px 0 10px 10px;
   }
   #username {

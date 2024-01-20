@@ -13,9 +13,8 @@ template.innerHTML = `
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding-inline: 0.5rem;
     height: 20rem;
-    width: 13rem;
+    min-width: 15rem;
     overflow-y: auto;
   }
 </style>
