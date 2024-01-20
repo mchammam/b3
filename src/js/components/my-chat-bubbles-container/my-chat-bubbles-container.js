@@ -15,6 +15,7 @@ template.innerHTML = `
     gap: 1rem;
     height: 20rem;
     min-width: 15rem;
+    max-width: 15rem;
     overflow-y: auto;
   }
 </style>

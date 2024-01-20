@@ -13,6 +13,7 @@ template.innerHTML = `
     position: relative;
     margin-right: auto;
     padding: 0.2rem 0.5rem;
+    min-height: 1rem;
     border-radius: 0 10px 10px 10px;
     background-color: #111827;
   }
@@ -33,7 +34,10 @@ template.innerHTML = `
     right: 0;
     left: auto;
   }
-
+  slot {
+    white-space: pre-line;
+    line-break: anywhere;
+  }
 </style>
 
 <span id="username"></span>
