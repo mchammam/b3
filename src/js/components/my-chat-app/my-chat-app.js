@@ -7,6 +7,7 @@
 
 import '../my-chat-bubbles-container'
 import '../my-chat-bubble'
+import '../my-username-form'
 
 /*
  * Define template.
@@ -15,22 +16,35 @@ const template = document.createElement('template')
 template.innerHTML = `
   <style>
     .hidden {
-      display: none;
+      display: none!important;
+    }
+    :host {
+      height: 20rem;
+    }
+    #username-form {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+    #chat {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
   </style>
 
-<div id="nickname-form">
-
+<div id="username-form">
+  <my-username-form></my-username-form>
 </div>
 
-<div>
+<div id="chat" class="hidden">
   <my-chat-bubbles-container></my-chat-bubbles-container>
-</div>
 
-<form>
-  <textarea></textarea>
-  <button type="submit">Send</button>
-</form>
+  <form>
+    <textarea></textarea>
+    <button type="submit">Send</button>
+  </form>
+</div>
 `
 
 /*
@@ -51,7 +65,7 @@ customElements.define(
 
     #socket = new WebSocket('wss://courselab.lnu.se/message-app/socket')
 
-    #username = 'testuser'
+    #username = localStorage.getItem('my-chat-app_username')
 
     /**
      * Creates an instance of the current type.
@@ -64,12 +78,26 @@ customElements.define(
       this.attachShadow({ mode: 'open' }).append(
         template.content.cloneNode(true)
       )
+
+      if (this.#username) {
+        this.shadowRoot.querySelector('#username-form').classList.add('hidden')
+        this.shadowRoot.querySelector('#chat').classList.remove('hidden')
+      }
     }
 
     /**
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      this.shadowRoot.querySelector('my-username-form').addEventListener('my-username-form:answer', event => {
+        this.#username = event.detail.username
+
+        this.shadowRoot.querySelector('#username-form').classList.add('hidden')
+        this.shadowRoot.querySelector('#chat').classList.remove('hidden')
+
+        localStorage.setItem('my-chat-app_username', this.#username)
+      })
+
       this.shadowRoot.querySelector('form').addEventListener('submit', event => {
         event.preventDefault()
 
@@ -104,7 +132,7 @@ customElements.define(
         chatBubble.setAttribute('username', data.username)
         data.username === this.#username && chatBubble.setAttribute('self', '')
 
-        chatBubble.textContent = `${data.data}`
+        chatBubble.textContent = `${data.data.trim()}`
 
         this.shadowRoot.querySelector('my-chat-bubbles-container').append(chatBubble)
       })
