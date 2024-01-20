@@ -8,6 +8,12 @@
 import '../my-chat-bubbles-container'
 import '../my-chat-bubble'
 import '../my-username-form'
+import '../my-chat-form'
+
+// ------------------------------------------------------------------------
+// Constants
+// ------------------------------------------------------------------------
+const API_KEY = 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd'
 
 /*
  * Define template.
@@ -39,11 +45,7 @@ template.innerHTML = `
 
 <div id="chat" class="hidden">
   <my-chat-bubbles-container></my-chat-bubbles-container>
-
-  <form>
-    <textarea></textarea>
-    <button type="submit">Send</button>
-  </form>
+  <my-chat-form></my-chat-form>
 </div>
 `
 
@@ -98,24 +100,20 @@ customElements.define(
         localStorage.setItem('my-chat-app_username', this.#username)
       })
 
-      this.shadowRoot.querySelector('form').addEventListener('submit', event => {
-        event.preventDefault()
-
+      this.shadowRoot.querySelector('my-chat-form').addEventListener('my-chat-form:message', event => {
         if (this.#socket.readyState !== 1) {
           console.log('Not ready!')
         }
 
-        const message = this.shadowRoot.querySelector('textarea').value
+        const message = event.detail.message
 
         this.#socket.send(JSON.stringify({
           type: 'message',
           data: message,
           username: this.#username,
           channel: '1',
-          key: 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd'
+          key: API_KEY
         }))
-
-        this.shadowRoot.querySelector('textarea').value = ''
       },
       { signal: this.#abortController.signal }
       )
