@@ -30,7 +30,9 @@ template.innerHTML = `
 </style>
 
 <div id="controls">
-  <emoji-picker class="dark hidden"></emoji-picker>
+  <div>
+    <emoji-picker class="dark hidden"></emoji-picker>
+  </div>
   <button id="emoji-picker-btn">😀</button>
 </div>
 
@@ -81,19 +83,35 @@ customElements.define(
             return
           }
 
-          // To not interfer with this (#emoji-picker-btn) click event, add the document event listener after browser render (next event loop iteration).
-          setTimeout(() => {
+          // Prevent the click events on emoji button and emoji picker from being fired on the document
+          event.stopPropagation()
+
+          this.shadowRoot.querySelector('emoji-picker').addEventListener('click',
+            (event) => {
+              event.stopPropagation()
+            }
+          )
+
           // Since this event listener is intended to close the emoji picker when click outside of it, the event listener is on the document itself.
-            document.addEventListener('click', (event) => {
-              console.log('hit!')
-              if (!emojiPicker.contains(event.target)) {
-                emojiPicker.classList.add('hidden')
-              }
-            }, { once: true })
-          }, 0)
+          document.addEventListener('click', (event) => {
+            console.log(event.target)
+
+            if (!event.target === emojiPicker || !emojiPicker.parentElement.contains(event.target)) {
+              emojiPicker.classList.add('hidden')
+            }
+          }, { once: true })
         },
         { signal: this.#abortController.signal }
       )
+
+      document.addEventListener('click', (event) => {
+        console.log(event.target)
+        const emojiPicker = this.shadowRoot.querySelector('emoji-picker')
+
+        if (!event.target === emojiPicker || !emojiPicker.parentElement.contains(event.target)) {
+          emojiPicker.classList.add('hidden')
+        }
+      })
 
       this.shadowRoot.querySelector('emoji-picker').addEventListener(
         'emoji-click',
