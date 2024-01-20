@@ -36,7 +36,6 @@ template.innerHTML = `
   }
   slot {
     white-space: pre-line;
-    line-break: anywhere;
   }
 </style>
 
