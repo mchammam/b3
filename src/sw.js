@@ -33,7 +33,13 @@ async function cachedfetch (request) {
   try {
     const res = await fetch(request)
 
+    // Unchachable resource
+    if (request.method === 'HEAD') {
+      return res
+    }
+
     const cache = await caches.open(version)
+    // console.log(request)
     cache.put(request, res.clone())
 
     return res
