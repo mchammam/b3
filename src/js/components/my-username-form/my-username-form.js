@@ -15,7 +15,7 @@ form{
   gap: 0.75rem;
 }
 .input-group {
-  position:relative;
+  position: relative;
 }
 label {
   position: absolute;
