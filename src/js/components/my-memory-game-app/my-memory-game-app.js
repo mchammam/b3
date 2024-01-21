@@ -7,6 +7,7 @@
 
 import '../my-memory-game'
 import '../my-timer'
+import '../my-memory-game-start-form'
 
 /*
  * Define template.
@@ -20,10 +21,7 @@ template.innerHTML = `
   </style>
 
 <div id="choose-board-size">
-  Choose board size here.
-  <button data-board-size="small">Small</button>
-  <button data-board-size="medium">Medium</button>
-  <button data-board-size="large">Large</button>
+  <my-memory-game-start-form></my-memory-game-start-form>
 </div>
 
 <div id="active-game" class="hidden">
@@ -63,6 +61,7 @@ customElements.define(
      */
     #attempts = 0
 
+    #nickname
     /**
      * Creates an instance of the current type.
      */
@@ -74,6 +73,13 @@ customElements.define(
       this.attachShadow({ mode: 'open' }).append(
         template.content.cloneNode(true)
       )
+
+      this.shadowRoot
+        .querySelector('my-memory-game-start-form')
+        .setAttribute(
+          'nickname',
+          localStorage.getItem('my-memory-game-app_nickname') ?? ''
+        )
     }
 
     /**
@@ -81,33 +87,35 @@ customElements.define(
      */
     connectedCallback () {
       this.shadowRoot
-        .querySelectorAll('#choose-board-size button')
-        .forEach((button) => {
-          button.addEventListener(
-            'click',
-            (event) => {
-              const boardSize = event.target.getAttribute('data-board-size')
+        .querySelector('my-memory-game-start-form')
+        .addEventListener(
+          'my-memory-game-start-form:submit',
+          (event) => {
+            const nickname = event.detail.nickname
+            const boardSize = event.detail.boardSize
 
-              this.shadowRoot
-                .querySelector('#choose-board-size')
-                .classList.add('hidden')
-              this.shadowRoot
-                .querySelector('#active-game')
-                .classList.remove('hidden')
-              this.shadowRoot
-                .querySelector('my-memory-game')
-                .removeAttribute('boardsize')
-              this.shadowRoot
-                .querySelector('my-memory-game')
-                .setAttribute('boardsize', boardSize)
+            this.shadowRoot
+              .querySelector('#choose-board-size')
+              .classList.add('hidden')
+            this.shadowRoot
+              .querySelector('#active-game')
+              .classList.remove('hidden')
+            this.shadowRoot
+              .querySelector('my-memory-game')
+              .removeAttribute('boardsize')
+            this.shadowRoot
+              .querySelector('my-memory-game')
+              .setAttribute('boardsize', boardSize)
 
-              this.shadowRoot
-                .querySelector('#time')
-                .replaceChildren(document.createElement('my-timer'))
-            },
-            { signal: this.#abortController.signal }
-          )
-        })
+            this.shadowRoot
+              .querySelector('#time')
+              .replaceChildren(document.createElement('my-timer'))
+
+            this.#nickname = nickname
+            localStorage.setItem('my-memory-game-app_nickname', nickname)
+          },
+          { signal: this.#abortController.signal }
+        )
 
       this.shadowRoot.querySelector('my-memory-game').addEventListener(
         'memory-game:tiles-match',
