@@ -30,20 +30,17 @@ template.innerHTML = `
   }
 </style>
 
-  <h3>High scores</h3>
-  <p id="no-high-scores-message" class="hidden">No high scores to show.</p>
-  <ol id="high-scores">
-    <!-- Here will be inserted high scores. -->
-  </ol>
-`
-const highScoreListItemTemplate = document.createElement('template')
-highScoreListItemTemplate.innerHTML = `
-<li>
-  <p>
-    <span class="nickname"><!-- Nickname here --></span>
-    <span class="score"><!-- Score here --></span>
-  </p>
-</li>
+<h3>High scores</h3>
+<ol id="high-scores">
+  <template id="highscore-li">
+    <li>
+      <p>
+        <span class="nickname"><!-- Nickname here --></span>
+        <span class="score"><!-- Score here --></span>
+      </p>
+    </li>
+  </template>
+</ol>
 `
 
 customElements.define(
@@ -72,19 +69,11 @@ customElements.define(
      * @param {string} highScores[].nickname - Player nickname.
      * @param {number} highScores[].score - Player score.
      * @param {boolean} highScores[].isCurrentPlayer - True if the score belongs to the current player.
-     * @returns {HTMLElement} - the high-score element itself.
      */
     setHighscores (highScores) {
-      if (highScores.length === 0) {
-        this.shadowRoot.querySelector('#no-high-scores-message').classList.remove('hidden')
-        return this
-      }
-
       this.shadowRoot.querySelector('#high-scores').replaceChildren(
-        ...highScores.map(this.#createHighscoreListItem)
+        ...highScores.map(this.#createHighscoreListItem.bind(this))
       )
-
-      return this
     }
 
     /**
@@ -97,10 +86,10 @@ customElements.define(
      * @returns {HTMLLIElement} - List element presenting the high score.
      */
     #createHighscoreListItem ({ nickname, score, isCurrentPlayer }) {
-      const li = highScoreListItemTemplate.content.cloneNode(true)
+      const li = this.shadowRoot.querySelector('template#highscore-li').content.cloneNode(true)
 
       li.querySelector('.nickname').textContent = nickname
-      li.querySelector('.score').textContent = `- ${score}s`
+      li.querySelector('.score').textContent = `- ${score}`
       isCurrentPlayer && li.querySelector('li').classList.add('current-player')
 
       return li
