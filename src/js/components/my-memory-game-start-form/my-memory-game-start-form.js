@@ -129,9 +129,6 @@ customElements.define(
       if (name === 'nickname') {
         this.shadowRoot.querySelector('#nickname').focus()
         this.shadowRoot.querySelector('#nickname').value = newValue
-        this.shadowRoot.querySelectorAll('form button[type="submit"]').forEach(button => {
-          button.removeAttribute('disabled')
-        })
       }
     }
 
@@ -153,7 +150,7 @@ customElements.define(
         })
       )
 
-      this.shadowRoot.querySelector('form').addEventListener(
+      this.shadowRoot.querySelector('input').addEventListener(
         'keydown', event => {
           if (event.key === 'Enter') {
             event.preventDefault()
@@ -177,10 +174,6 @@ customElements.define(
      * @param boardSize
      */
     #handleSubmit (boardSize) {
-      this.shadowRoot.querySelectorAll('form button[type="submit"]').forEach(button => {
-        button.setAttribute('disabled', '')
-      })
-
       const nickname = this.shadowRoot.querySelector('#nickname').value
 
       this.dispatchEvent(

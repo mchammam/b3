@@ -18,22 +18,48 @@ template.innerHTML = `
     .hidden {
       display: none;
     }
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 0 1rem 0;
+      font-size: 0.75rem;
+    }
+    :host {
+      position: relative;
+    }
+    #game-over {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      gap: 1rem;
+      margin: -1rem;
+      padding: 1rem;
+      background-color: #374151cc;
+    }
   </style>
 
-<div id="choose-board-size">
+<div id="choose-board-size" class="hidden">
   <my-memory-game-start-form></my-memory-game-start-form>
 </div>
 
-<div id="active-game" class="hidden">
-  <div>Attempts: <span id="attempts"></span></div>
-  <div>Time: <span id="time"></span> seconds.</div>
+<div id="active-game">
+  <div class="score-bar">
+    <div><span id="attempts">0</span> attempts</div>
+    <div>Time: <span id="time"></span>s</div>
+  </div>
   <my-memory-game boardsize="small"></my-memory-game>
 </div>
 
-<div id="game-over" class="hidden">
-  Game over.
-  <div>Attempts: <span id="final-attempts"></span></div>
-  <div>Time: <span id="final-time"></span> seconds.</div>
+<div id="game-over">
+  <div class="score-bar">
+    <div><span id="final-attempts">0</span> attempts</div>
+    <div>Time: <span id="final-time"></span>s</div>
+  </div>
+  <p>Good job, <span id="nickname"></span>!</p>
+  High scores
+  <p>Can you do better?</p>
   <button id="play-again">Play again</button>
 </div>
 `
