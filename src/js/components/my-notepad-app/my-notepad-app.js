@@ -19,6 +19,7 @@ template.innerHTML = `
 </style>
 
 <div id="controls">
+  <button id="new">New</button>
   <button id="open">Open</button>
   <button id="save">Save</button>
 
@@ -57,6 +58,11 @@ customElements.define(
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      this.shadowRoot.querySelector('#new').addEventListener('click', (event) => {
+        this.#fileHandle = null
+        this.shadowRoot.querySelector('textarea').value = ''
+      })
+
       this.shadowRoot.querySelector('#open').addEventListener('click', async () => {
         [this.#fileHandle] = await window.showOpenFilePicker()
         const file = await this.#fileHandle.getFile()
@@ -65,6 +71,10 @@ customElements.define(
       })
 
       this.shadowRoot.querySelector('#save').addEventListener('click', async () => {
+        if (!this.#fileHandle) {
+          this.#fileHandle = await window.showSaveFilePicker()
+        }
+
         const writableStream = await this.#fileHandle.createWritable()
 
         await writableStream.write(this.shadowRoot.querySelector('textarea').value)
