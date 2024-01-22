@@ -12,9 +12,7 @@ const TIMER_INTERVAL_MS = 1000
 
 // Define template.
 const template = document.createElement('template')
-template.innerHTML = `
-<span id="time"></span>
-`
+
 customElements.define(
   'my-timer',
   /**
@@ -108,7 +106,7 @@ customElements.define(
       this.#time++
       this.#render()
 
-      this.dispatchEvent(new Event('my-timer:tick', { detail: { time: this.#time } }))
+      this.dispatchEvent(new CustomEvent('my-timer:tick', { detail: { time: this.#time } }))
 
       const expectedTimeOnNextIteration = expectedTimeNow + TIMER_INTERVAL_MS
 
@@ -134,7 +132,7 @@ customElements.define(
      * Render method, updates the shadowDOM.
      */
     #render () {
-      this.shadowRoot.querySelector('#time').textContent = this.#time
+      this.shadowRoot.textContent = this.#time
     }
   }
 )
