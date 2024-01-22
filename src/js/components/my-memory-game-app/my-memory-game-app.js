@@ -105,7 +105,7 @@ customElements.define(
    */
   class extends HTMLElement {
     /**
-     * Make it possible to remove the event listeners.
+     * Used to remove the event listeners on component disconnect.
      *
      * @type {AbortController}
      */
