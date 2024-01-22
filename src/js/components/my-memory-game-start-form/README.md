@@ -1,32 +1,25 @@
 # &lt;my-memory-game-start-form&gt;
 
-A component consisting of a text input and a submit button used to submit a username.
+A component consisting of a text input for nickname and three buttons to choose board size.
 
 ## Attributes
 
-### `username`
-Attribute to set a prefilled username.
+### `nickname`
+Attribute to set a prefilled nickname.
 
 ## Events
 
-### `my-memory-game-start-form:answer`
-
-An event that is emitted when the username is submitted. The event detail is an object with a `username` property. Example:
+### `my-memory-game-start-form:submit`
+An event that is emitted when the form is submitted. The event detail is an object with a `nickname` and `boardSize` properties. Example:
 
 ```js
 {
-  username: 'John'
+  nickname: 'John',
+  boardSize: 'medium'
 }
 ```
 
 ## Example
-
-```js
-const usernameForm = document.createElement('username-form')
-usernameform.setAttribute('username', 'John')
-
-Or
-
 ```html
-<username-form username="John"></username-form>
+<my-memory-game-start-form nickname="John"></my-memory-game-start-form>
 ```
