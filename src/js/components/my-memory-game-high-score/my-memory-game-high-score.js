@@ -9,9 +9,6 @@
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
-  .hidden {
-    display: none;
-  }
   h3 {
     margin-top: 2rem;
     text-align: center;
@@ -23,6 +20,7 @@ template.innerHTML = `
   li p {
     display: flex;
     justify-content: space-between;
+    gap: 0.5rem;
   }
   .current-player {
     font-weight: bold;
@@ -32,15 +30,16 @@ template.innerHTML = `
 
 <h3>High scores</h3>
 <ol id="high-scores">
-  <template id="highscore-li">
-    <li>
-      <p>
-        <span class="nickname"><!-- Nickname here --></span>
-        <span class="score"><!-- Score here --></span>
-      </p>
-    </li>
-  </template>
 </ol>
+
+<template id="highscore-li">
+  <li>
+    <p>
+      <span class="nickname"></span>
+      <span class="score"></span>
+    </p>
+  </li>
+</template>
 `
 
 customElements.define(
