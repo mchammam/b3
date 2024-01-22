@@ -8,6 +8,17 @@ A timer component.
 
 Boolean attribute that stops the timer. If stopped once the timer will not be able to resume.
 
+## Events
+
+### `my-timer:tick`
+Emitted every second. The event detail is an object with a `time` property. Example:
+
+```js
+{
+  time: 19
+}
+```
+
 ## Example
 
 ### HTML

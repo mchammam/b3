@@ -66,7 +66,7 @@ customElements.define(
      */
     attributeChangedCallback (name, oldValue, newValue) {
       if (name === 'stopped') {
-        this.#stopTimer()
+        this.#stop()
       }
     }
 
@@ -78,13 +78,13 @@ customElements.define(
         return
       }
 
-      this.#startTimer()
+      this.#start()
     }
 
     /**
      * Starts the timer.
      */
-    #startTimer () {
+    #start () {
       this.#render()
 
       if (this.#timeoutID) {
@@ -96,30 +96,32 @@ customElements.define(
       // Inspiration taken from https://stackoverflow.com/questions/29971898/how-to-create-an-accurate-timer-in-javascript
 
       const expectedTimeOnNextIteration = Date.now() + TIMER_INTERVAL_MS
-      this.#timeoutID = setTimeout(this.#timerStep.bind(this), TIMER_INTERVAL_MS, expectedTimeOnNextIteration)
+      this.#timeoutID = setTimeout(this.#tick.bind(this), TIMER_INTERVAL_MS, expectedTimeOnNextIteration)
     }
 
     /**
-     * Timer step method called recursively.
+     * Timer tick method called recursively.
      *
      * @param {number} expectedTimeNow - Expected time when this iteration runs.
      */
-    #timerStep (expectedTimeNow) {
+    #tick (expectedTimeNow) {
       this.#time++
       this.#render()
+
+      this.dispatchEvent(new Event('my-timer:tick', { detail: { time: this.#time } }))
 
       const expectedTimeOnNextIteration = expectedTimeNow + TIMER_INTERVAL_MS
 
       const difference = Date.now() - expectedTimeNow
       const correctedInterval = Math.max(0, TIMER_INTERVAL_MS - difference)
 
-      this.#timeoutID = setTimeout(this.#timerStep.bind(this), correctedInterval, expectedTimeOnNextIteration)
+      this.#timeoutID = setTimeout(this.#tick.bind(this), correctedInterval, expectedTimeOnNextIteration)
     }
 
     /**
      * Method to stop the timer.
      */
-    #stopTimer () {
+    #stop () {
       clearTimeout(this.#timeoutID)
       this.#timeoutID = null
 
