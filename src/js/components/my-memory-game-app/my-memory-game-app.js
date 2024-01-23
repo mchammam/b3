@@ -184,7 +184,6 @@ customElements.define(
      * Called after the element has been removed from the DOM.
      */
     disconnectedCallback () {
-      // Remove the event listeners.
       this.#abortController.abort()
     }
 
