@@ -1,6 +1,5 @@
 # &lt;my-notepad-app&gt;
-
-...
+Simple notepad app.
 
 ## Example
 
