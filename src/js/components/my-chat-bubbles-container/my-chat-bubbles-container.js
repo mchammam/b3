@@ -12,10 +12,11 @@ template.innerHTML = `
   :host {
     display: flex;
     flex-direction: column;
+    flex: 1;
     gap: 1rem;
-    height: 20rem;
+    min-height: 0;
+    height: 100%;
     min-width: 15rem;
-    max-width: 15rem;
     overflow-y: auto;
   }
 </style>
