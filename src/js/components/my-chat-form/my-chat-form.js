@@ -98,6 +98,33 @@ customElements.define(
     }
 
     /**
+     * Attributes to monitor for changes.
+     *
+     * @returns {string[]} A string array of attributes to monitor.
+     */
+    static get observedAttributes () {
+      return ['disabled']
+    }
+
+    /**
+     * Called when observed attribute(s) changes.
+     *
+     * @param {string} name - The attribute's name.
+     * @param {*} oldValue - The old value.
+     * @param {*} newValue - The new value.
+     */
+    attributeChangedCallback (name, oldValue, newValue) {
+      if (name === 'disabled') {
+        const submitButton = this.shadowRoot.querySelector('button[type="submit"]')
+        if (newValue === null) {
+          submitButton.removeAttribute('disabled')
+        } else {
+          submitButton.setAttribute('disabled', '')
+        }
+      }
+    }
+
+    /**
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
@@ -164,12 +191,10 @@ customElements.define(
      * Handles the textarea keyup event.
      */
     #handleTexareaKeyup () {
-      const button = this.shadowRoot.querySelector('button[type="submit"]')
-
       if (this.shadowRoot.querySelector('textarea').value.trim() === '') {
-        button.setAttribute('disabled', '')
+        this.setAttribute('disabled', '')
       } else {
-        button.removeAttribute('disabled')
+        this.removeAttribute('disabled')
       }
     }
 
