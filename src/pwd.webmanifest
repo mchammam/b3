@@ -4,8 +4,8 @@
   "description": "My personal web desktop.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#111827",
+  "theme_color": "#374151",
   "icons": [
     {
       "sizes": "16x16",
