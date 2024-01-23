@@ -60,6 +60,13 @@ customElements.define(
    */
   class extends HTMLElement {
     /**
+     * Used to remove the event listeners on component disconnect.
+     *
+     * @type {AbortController}
+     */
+    #abortController = new AbortController()
+
+    /**
      * Creates an instance of the current type.
      */
     constructor () {
@@ -69,6 +76,30 @@ customElements.define(
       // append the template to the shadow root.
       this.attachShadow({ mode: 'open' }).append(
         template.content.cloneNode(true)
+      )
+    }
+
+    /**
+     * Called after the element is inserted into the DOM.
+     */
+    connectedCallback () {
+      this.shadowRoot.querySelector('slot').addEventListener('slotchange', () =>
+        this.shadowRoot.querySelector('slot').assignedNodes()
+          .filter((node) => node.nodeName === 'BUTTON')
+          .forEach((button) => {
+            button.addEventListener('click', () =>
+              this.dispatchEvent(
+                new CustomEvent('my-dock:app-open', {
+                  detail:
+                      {
+                        title: button.getAttribute('title'),
+                        app: button.getAttribute('data-app')
+                      }
+                })
+              ),
+            { signal: this.#abortController.signal }
+            )
+          })
       )
     }
   }
