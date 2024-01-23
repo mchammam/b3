@@ -20,30 +20,54 @@ self.addEventListener('activate', async (event) => {
 self.addEventListener('fetch', (event) => {
   // console.info('ServiceWorker: Fetch')
 
-  event.respondWith(cachedfetch(event.request))
+  event.respondWith(cachedData(event.request))
 })
 
 /**
- * Method used to respond with cached data when fetch fails.
+ * Method used to respond with cached data if found, else fetch the data.
  *
  * @param {Request} request - The request object.
  * @returns {Response | Promise<Response | undefined>} The response object.
  */
-async function cachedfetch (request) {
+async function cachedData (request) {
+  const cachedResponse = await caches.match(request)
+  if (cachedResponse) {
+    return cachedResponse
+  } else {
+    cachedFetch(request)
+  }
+}
+
+/**
+ * Method used to fetch request (and cache it).
+ *
+ * @param {Request} request - The request object.
+ * @returns {Response | Promise<Response | undefined>} The response object.
+ */
+async function cachedFetch (request) {
+  const response = await fetch(request)
+
+  // Unchachable resource
+  if (request.method === 'HEAD') {
+    return response
+  }
+
+  cacheResponse(request, response)
+
+  return response
+}
+
+/**
+ * Method used to cache response.
+ *
+ * @param {Request} request - The request object.
+ * @param {Response} response - The response object.
+ */
+async function cacheResponse (request, response) {
   try {
-    const res = await fetch(request)
-
-    // Unchachable resource
-    if (request.method === 'HEAD') {
-      return res
-    }
-
     const cache = await caches.open(version)
-    cache.put(request, res.clone())
-
-    return res
+    cache.put(request, response.clone())
   } catch {
-    // console.info('ServiceWorker: Serving cached result')
-    return caches.match(request)
+    console.error('Cache error')
   }
 }
