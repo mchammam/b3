@@ -16,7 +16,7 @@ template.innerHTML = `
     }
   #controls {
     position: relative;
-    margin-bottom: 0.25rem;
+    margin-block: 0.25rem;
   }
   emoji-picker {
     --num-columns: 7;
@@ -107,7 +107,7 @@ customElements.define(
       }, { signal: this.#abortController.signal })
 
       this.shadowRoot.querySelector('#emoji-picker-btn').addEventListener('click', (event) => {
-        if (!this.shadowRoot.querySelector('emoji-picker').classList.contains('hidden')) {
+        if (this.shadowRoot.querySelector('emoji-picker').classList.contains('hidden')) {
           // Prevent accidentally close of emoji-picker when click event propagates to window.
           event.stopPropagation()
         }
@@ -131,9 +131,10 @@ customElements.define(
 
           this.shadowRoot.querySelector('form').dispatchEvent(new Event('submit'))
         }
-
-        this.#handleTexareaKeydown()
       }, { signal: this.#abortController.signal })
+
+      this.shadowRoot.querySelector('textarea').addEventListener('keyup', () => this.#handleTexareaKeyup()
+        , { signal: this.#abortController.signal })
     }
 
     /**
@@ -160,10 +161,10 @@ customElements.define(
     }
 
     /**
-     * Handles the textarea keydown event.
+     * Handles the textarea keyup event.
      */
-    #handleTexareaKeydown () {
-      const button = this.shadowRoot.querySelector('button')
+    #handleTexareaKeyup () {
+      const button = this.shadowRoot.querySelector('button[type="submit"]')
 
       if (this.shadowRoot.querySelector('textarea').value.trim() === '') {
         button.setAttribute('disabled', '')
