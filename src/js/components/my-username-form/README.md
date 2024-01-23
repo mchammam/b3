@@ -9,7 +9,7 @@ Attribute to set a prefilled username.
 
 ## Events
 
-### `my-username-form:answer`
+### `my-username-form:submit`
 
 An event that is emitted when the username is submitted. The event detail is an object with a `username` property. Example:
 
