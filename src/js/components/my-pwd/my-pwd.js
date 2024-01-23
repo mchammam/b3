@@ -33,6 +33,13 @@ customElements.define(
    */
   class extends HTMLElement {
     /**
+     * Used to remove the event listeners on component disconnect.
+     *
+     * @type {AbortController}
+     */
+    #abortController = new AbortController()
+
+    /**
      * The highest z-index of windows.
      *
      * @type {string}
@@ -56,43 +63,55 @@ customElements.define(
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-      this.shadowRoot.addEventListener('mousedown', event => {
-        if (event.target.nodeName !== 'MY-WINDOW') {
-          return
-        }
+      this.shadowRoot.querySelector('my-dock').addEventListener('my-dock:app-open', (event) => {
+        const title = event.detail.title
+        const app = event.detail.app
 
-        event.target.style.zIndex = ++this.#highestWindowZIndex
-      })
-
-      this.shadowRoot.querySelector('my-dock').addEventListener('click', async event => {
-        if (event.target.nodeName !== 'BUTTON') {
-          return
-        }
-
-        const newWindow = document.createElement('my-window')
-
-        const numberOfWindows = this.shadowRoot.querySelectorAll('my-window').length
-        newWindow.setAttribute('top', numberOfWindows * 15 + 100)
-        newWindow.setAttribute('left', numberOfWindows * 15 + 100)
-
-        newWindow.setAttribute('title', event.target.getAttribute('title'))
-        newWindow.style.zIndex = ++this.#highestWindowZIndex
-        newWindow.append(document.createElement('my-spinner'))
-
-        this.shadowRoot.append(newWindow)
-
-        const appName = event.target.getAttribute('data-app')
-        await import(`../${appName}`)
-        const newApp = document.createElement(appName)
-        newWindow.replaceChildren(newApp)
-      })
+        this.#openApp(title, app)
+      }, { signal: this.#abortController.signal })
     }
 
     /**
      * Called after the element has been removed from the DOM.
      */
     disconnectedCallback () {
+      this.#abortController.abort()
+    }
 
+    /**
+     * Opens an app.
+     *
+     * @param {string} title - The title of the app.
+     * @param {string} app - The name of the app.
+     */
+    async #openApp (title, app) {
+      const newWindow = document.createElement('my-window')
+
+      const numberOfWindows = this.shadowRoot.querySelectorAll('my-window').length
+      newWindow.style.top = `${numberOfWindows * 15 + 100}px`
+      newWindow.style.left = `${numberOfWindows * 15 + 100}px`
+
+      newWindow.setAttribute('title', title)
+      newWindow.style.zIndex = ++this.#highestWindowZIndex
+      newWindow.append(document.createElement('my-spinner'))
+
+      this.shadowRoot.append(newWindow)
+
+      await import(`../${app}`)
+      const newApp = document.createElement(app)
+      newWindow.replaceChildren(newApp)
+
+      newWindow.addEventListener('my-window:focus', (event) => {
+        event.currentTarget.style.zIndex = ++this.#highestWindowZIndex
+      }, { signal: this.#abortController.signal })
+
+      newWindow.addEventListener('my-window:move', (event) => {
+        const newTop = event.detail.top
+        const newLeft = event.detail.left
+
+        event.currentTarget.style.top = `${newTop}px`
+        event.currentTarget.style.left = `${newLeft}px`
+      }, { signal: this.#abortController.signal })
     }
   }
 )
