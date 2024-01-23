@@ -46,6 +46,7 @@ template.innerHTML = `
     padding: 1rem;
   }
 </style>
+
 <div id="title-bar">
   <span id="title"></span>
   <button id="close" title="Close">X</button>
@@ -62,25 +63,18 @@ customElements.define(
    */
   class extends HTMLElement {
     /**
-     * Bound event handler.
+     * Used to remove the event listeners on component disconnect.
      *
-     * @type {Function}
+     * @type {AbortController}
      */
-    #boundHandleMouseMove
+    #abortController = new AbortController()
 
     /**
-     * Bound event handler.
+     * Used to remove the mouse move event listener.
      *
-     * @type {Function}
+     * @type {AbortController}
      */
-    #boundHandleMouseDown
-
-    /**
-     * Bound event handler.
-     *
-     * @type {Function}
-     */
-    #boundHandleCloseButtonClick
+    #mousemoveAbortController = new AbortController()
 
     /**
      * Creates an instance of the current type.
@@ -101,7 +95,7 @@ customElements.define(
      * @returns {string[]} A string array of attributes to monitor.
      */
     static get observedAttributes () {
-      return ['title', 'top', 'left']
+      return ['title']
     }
 
     /**
@@ -115,66 +109,65 @@ customElements.define(
       if (name === 'title' && oldValue !== newValue) {
         this.shadowRoot.querySelector('#title').textContent = newValue
       }
-
-      if (name === 'top' && oldValue !== newValue) {
-        this.shadowRoot.host.style.top = newValue + 'px'
-      }
-
-      if (name === 'left' && oldValue !== newValue) {
-        this.shadowRoot.host.style.left = newValue + 'px'
-      }
     }
 
     /**
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-      /**
-       * Method to handle mouse down on window title div (and move the window).
-       *
-       * @param {MouseEvent} event - The mouse down event.
-       */
-      this.shadowRoot.querySelector('#title-bar').addEventListener('mousedown', this.#boundHandleMouseDown = event => {
-        if (event.button !== 0) {
-          return
-        }
+      this.shadowRoot.addEventListener('click', (event) => {
+        this.dispatchEvent(new CustomEvent('my-window:focus'))
+      }, { signal: this.#abortController.signal })
 
-        const windowTop = this.getAttribute('top') ?? 0
-        const mouseToWindowOffsetY = event.pageY - windowTop
+      this.shadowRoot.querySelector('#close').addEventListener('click', () => this.remove(),
+        { signal: this.#abortController.signal })
 
-        const windowLeft = this.getAttribute('left') ?? 0
-        const mouseToWindowOffsetX = event.pageX - windowLeft
-
-        // TODO: is this the best way?
-        /**
-         * Method to handle mouse move.
-         *
-         * @param {MouseEvent} event - The mouse move event.
-         */
-        window.addEventListener('mousemove', this.#boundHandleMouseMove = event => {
-          this.setAttribute('top', event.pageY - mouseToWindowOffsetY)
-          this.setAttribute('left', event.pageX - mouseToWindowOffsetX)
-        })
-
-        window.addEventListener('mouseup', event => {
-          window.removeEventListener('mousemove', this.#boundHandleMouseMove)
-        }, { once: true })
-      })
-
-      /**
-       * Method to handle click on close button.
-       */
-      this.shadowRoot.querySelector('#close').addEventListener('click', this.#boundHandleCloseButtonClick = () => {
-        this.remove()
-      })
+      this.shadowRoot.querySelector('#title-bar').addEventListener('mousedown', (event) => {
+        this.#handleTitleBarMouseDown(event.button, event.pageX, event.pageY)
+      }, { signal: this.#abortController.signal })
     }
 
     /**
      * Called after the element has been removed from the DOM.
      */
     disconnectedCallback () {
-      this.shadowRoot.querySelector('#title-bar').removeEventListener('mousedown', this.#boundHandleMouseDown)
-      this.shadowRoot.querySelector('#close').removeEventListener('click', this.#boundHandleCloseButtonClick)
+      this.#abortController.abort()
+      this.#mousemoveAbortController.abort()
+    }
+
+    /**
+     * Handle mouse down on window title bar.
+     *
+     * @param {number} button - The mouse button.
+     * @param {number} mousePageX - The mouse page X.
+     * @param {number} mousePageY - The mouse page Y.
+     */
+    #handleTitleBarMouseDown (button, mousePageX, mousePageY) {
+      if (button !== 0) {
+        return
+      }
+
+      const mouseToWindowOffsetY = mousePageY - this.getBoundingClientRect().y
+      const mouseToWindowOffsetX = mousePageX - this.getBoundingClientRect().x
+
+      /**
+       * Method to handle mouse move.
+       *
+       * @param {MouseEvent} event - The mouse move event.
+       */
+      window.addEventListener('mousemove', (event) => {
+        this.dispatchEvent(new CustomEvent('my-window:move', {
+          detail: {
+            top: event.pageY - mouseToWindowOffsetY,
+            left: event.pageX - mouseToWindowOffsetX
+          }
+        }))
+      }, { signal: this.#mousemoveAbortController.signal })
+
+      window.addEventListener('mouseup', (event) => {
+        this.#mousemoveAbortController.abort()
+        this.#mousemoveAbortController = new AbortController()
+      }, { once: true })
     }
   }
 )
