@@ -17,6 +17,7 @@ import '../my-chat-form'
 const SOCKET_URL = 'wss://courselab.lnu.se/message-app/socket'
 const API_KEY = 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd'
 const RECONNECT_INTERVAL_MS = 3000
+const DEFAULT_CHANNEL = '#general'
 
 /*
  * Define template.
@@ -102,11 +103,11 @@ customElements.define(
     #reconnectIntervalID
 
     /**
-     * The default channel.
+     * The selected channel.
      *
      * @type {string}
      */
-    #channel = '#general'
+    #channel = DEFAULT_CHANNEL
 
     /**
      * Creates an instance of the current type.
@@ -121,9 +122,7 @@ customElements.define(
         htmlTemplate.content.cloneNode(true)
       )
 
-      if (this.#username) {
-        this.shadowRoot.querySelector('#username-form').classList.add('hidden')
-      }
+      this.shadowRoot.querySelector('my-username-form').setAttribute('username', this.#username)
 
       this.#addChannel(this.#channel)
       this.#selectChannel(this.#channel)
@@ -133,7 +132,7 @@ customElements.define(
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-      this.shadowRoot.querySelector('my-username-form').addEventListener('my-username-form:answer', (event) => {
+      this.shadowRoot.querySelector('my-username-form').addEventListener('my-username-form:submit', (event) => {
         this.#handleUsernameFormSubmit(event.detail.username)
       }, { signal: this.#abortController.signal })
 
