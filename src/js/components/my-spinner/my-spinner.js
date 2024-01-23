@@ -47,7 +47,12 @@ template.innerHTML = `
   }
 </style>
 
-<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+<div class="lds-ring" part="ring">
+  <div part="ring-div"></div>
+  <div part="ring-div"></div>
+  <div part="ring-div"></div>
+  <div part="ring-div"></div>
+</div>
 `
 customElements.define(
   'my-spinner',
