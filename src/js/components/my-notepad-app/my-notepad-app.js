@@ -42,12 +42,21 @@ template.innerHTML = `
     background: #111827;
     box-shadow: 0 3px 10px rgba(22, 25, 32, 0.25);
   }
+  #cut {
+    margin-left: 0.5rem;
+  }
 </style>
 
 <div id="controls">
-  <button id="new">🗎</button>
-  <button id="open">📂</button>
-  <button id="save">💾</button>
+  <button title="New" id="new">🗎</button>
+  <button title="Open" id="open">📂</button>
+  <button title="Save" id="save">💾</button>
+  <button title="Cut" id="cut">✂️</button>
+  <button title="Copy" id="copy">📑</button>
+  <button title="Paste" id="paste">📋</button>
+
+
+
 </div>
 
 <textarea></textarea>
@@ -96,6 +105,15 @@ customElements.define(
         { signal: this.#abortController.signal })
 
       this.shadowRoot.querySelector('#save').addEventListener('click', () => this.#handleSaveFileButtonClick(),
+        { signal: this.#abortController.signal })
+
+      this.shadowRoot.querySelector('#cut').addEventListener('click', () => this.#handleCutButtonClick(),
+        { signal: this.#abortController.signal })
+
+      this.shadowRoot.querySelector('#copy').addEventListener('click', () => this.#handleCopyButtonClick(),
+        { signal: this.#abortController.signal })
+
+      this.shadowRoot.querySelector('#paste').addEventListener('click', () => this.#handlePasteButtonClick(),
         { signal: this.#abortController.signal })
     }
 
@@ -149,6 +167,56 @@ customElements.define(
       await writableStream.write(this.shadowRoot.querySelector('textarea').value)
 
       await writableStream.close()
+    }
+
+    /**
+     * Handles the cut button click.
+     */
+    #handleCutButtonClick () {
+      const textarea = this.shadowRoot.querySelector('textarea')
+      const selectionStart = textarea.selectionStart
+      const selectionEnd = textarea.selectionEnd
+      const selectedText = textarea.value.substring(selectionStart, selectionEnd)
+
+      textarea.value = textarea.value.substring(0, selectionStart) + textarea.value.substring(selectionEnd)
+
+      textarea.focus()
+      textarea.selectionEnd = selectionStart
+
+      navigator.clipboard.writeText(selectedText)
+    }
+
+    /**
+     * Handles the copy button click.
+     */
+    #handleCopyButtonClick () {
+      const textarea = this.shadowRoot.querySelector('textarea')
+      const selectionStart = textarea.selectionStart
+      const selectionEnd = textarea.selectionEnd
+
+      const selectedText = textarea.value.substring(selectionStart, selectionEnd)
+
+      textarea.focus()
+      textarea.selectionEnd = selectionEnd
+      textarea.selectionStart = selectionStart
+
+      navigator.clipboard.writeText(selectedText)
+    }
+
+    /**
+     * Handles the paste button click.
+     */
+    async #handlePasteButtonClick () {
+      const textToPaste = await navigator.clipboard.readText()
+
+      const textarea = this.shadowRoot.querySelector('textarea')
+      const valueBeforeSelection = textarea.value.substring(0, textarea.selectionStart)
+      const valueAfterSelection = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
+
+      textarea.value = valueBeforeSelection + textToPaste + valueAfterSelection
+
+      textarea.focus()
+      textarea.selectionEnd = valueBeforeSelection.length + textToPaste.length
     }
   }
 )
