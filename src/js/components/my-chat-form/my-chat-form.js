@@ -14,9 +14,9 @@ template.innerHTML = `
   .hidden {
       display: none!important;
     }
-
   #controls {
     position: relative;
+    margin-bottom: 0.25rem;
   }
   emoji-picker {
     --num-columns: 7;
@@ -26,6 +26,36 @@ template.innerHTML = `
     height: 16rem;
     bottom: 100%;
     width: 16rem;
+  }
+  form {
+    display: flex;
+  }
+  textarea {
+    flex: 1;
+    height: 2.5rem;
+    background: transparent;
+    border-radius: 0.4rem 0 0 0.4rem;
+    border: 2px solid #4b5563;
+    border-right: 0;
+    color: #E5E7EB;
+  }
+  form button {
+    border-radius: 0 0.4rem 0.4rem 0;
+    border-left: 0;
+  }
+  button {
+    padding: 0.1rem 0.3rem;
+    background: transparent;
+    border-radius: 0.4rem;
+    border: 2px solid #4b5563;
+    color: #E5E7EB;
+    cursor: pointer;
+    transition: all 150ms;
+  }
+  button:hover, button:focus {
+    border-color: #111827;
+    background: #111827;
+    box-shadow: 0 3px 10px rgba(22, 25, 32, 0.25);
   }
 </style>
 
@@ -37,8 +67,8 @@ template.innerHTML = `
 </div>
 
 <form>
-  <textarea></textarea>
-  <button type="submit">Send</button>
+  <textarea title="Message" placeholder="Type message here.."></textarea>
+  <button type="submit" disabled>Send</button>
 </form>
 `
 customElements.define(
@@ -71,74 +101,39 @@ customElements.define(
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-      this.shadowRoot.querySelector('emoji-picker').addEventListener('click',
-        (event) => {
-          // Prevent accidentally close of emoji-picker when click event propagates to document.
+      this.shadowRoot.querySelector('emoji-picker').addEventListener('click', (event) => {
+        // Prevent accidentally close of emoji-picker when click event propagates to window.
+        event.stopPropagation()
+      }, { signal: this.#abortController.signal })
+
+      this.shadowRoot.querySelector('#emoji-picker-btn').addEventListener('click', (event) => {
+        if (!this.shadowRoot.querySelector('emoji-picker').classList.contains('hidden')) {
+          // Prevent accidentally close of emoji-picker when click event propagates to window.
           event.stopPropagation()
         }
-      )
 
-      this.shadowRoot.querySelector('#emoji-picker-btn').addEventListener(
-        'click',
-        (event) => {
-          const emojiPicker = this.shadowRoot.querySelector('emoji-picker')
+        this.#handleEmojiPickerButtonClick()
+      }, { signal: this.#abortController.signal })
 
-          emojiPicker.classList.toggle('hidden')
+      this.shadowRoot.querySelector('emoji-picker').addEventListener('emoji-click', (event) => {
+        this.#handleEmojiClick(event.detail.unicode)
+      }, { signal: this.#abortController.signal })
 
-          if (emojiPicker.classList.contains('hidden')) {
-            return
-          }
+      this.shadowRoot.querySelector('form').addEventListener('submit', (event) => {
+        event.preventDefault()
 
-          // Prevent accidentally close of emoji-picker when click event propagates to document.
-          event.stopPropagation()
+        this.#handleFormSubmit()
+      }, { signal: this.#abortController.signal })
 
-          // Since this event listener is intended to close the emoji picker when click outside of it, the event listener is on the document itself.
-          document.addEventListener('click', (event) => {
-            emojiPicker.classList.add('hidden')
-          }, { once: true })
-        },
-        { signal: this.#abortController.signal }
-      )
-
-      this.shadowRoot.querySelector('emoji-picker').addEventListener(
-        'emoji-click',
-        (event) => {
-          const emoji = event.detail.unicode
-
-          const textarea = this.shadowRoot.querySelector('textarea')
-          const valueBeforeSelection = textarea.value.substring(
-            0,
-            textarea.selectionStart
-          )
-          const valueAfterSelection = textarea.value.substring(
-            textarea.selectionEnd,
-            textarea.value.length
-          )
-
-          textarea.value = valueBeforeSelection + emoji + valueAfterSelection
-
-          textarea.focus()
-          textarea.selectionEnd = valueBeforeSelection.length + emoji.length
-        },
-        { signal: this.#abortController.signal }
-      )
-
-      this.shadowRoot.querySelector('form').addEventListener(
-        'submit',
-        (event) => {
+      this.shadowRoot.querySelector('textarea').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
           event.preventDefault()
 
-          const message = this.shadowRoot.querySelector('textarea').value
-          this.dispatchEvent(
-            new CustomEvent('my-chat-form:message', {
-              detail: { message }
-            })
-          )
+          this.shadowRoot.querySelector('form').dispatchEvent(new Event('submit'))
+        }
 
-          this.shadowRoot.querySelector('textarea').value = ''
-        },
-        { signal: this.#abortController.signal }
-      )
+        this.#handleTexareaKeydown()
+      }, { signal: this.#abortController.signal })
     }
 
     /**
@@ -147,6 +142,68 @@ customElements.define(
     disconnectedCallback () {
       // Remove the event listener.
       this.#abortController.abort()
+    }
+
+    /**
+     * Handles the form submit event.
+     */
+    #handleFormSubmit () {
+      const message = this.shadowRoot.querySelector('textarea').value
+
+      if (message.trim() === '') {
+        return
+      }
+
+      this.dispatchEvent(new CustomEvent('my-chat-form:submit', { detail: { message } }))
+
+      this.shadowRoot.querySelector('textarea').value = ''
+    }
+
+    /**
+     * Handles the textarea keydown event.
+     */
+    #handleTexareaKeydown () {
+      const button = this.shadowRoot.querySelector('button')
+
+      if (this.shadowRoot.querySelector('textarea').value.trim() === '') {
+        button.setAttribute('disabled', '')
+      } else {
+        button.removeAttribute('disabled')
+      }
+    }
+
+    /**
+     * Handles the emoji picker button click event.
+     */
+    #handleEmojiPickerButtonClick () {
+      const emojiPicker = this.shadowRoot.querySelector('emoji-picker')
+
+      emojiPicker.classList.toggle('hidden')
+
+      if (emojiPicker.classList.contains('hidden')) {
+        return
+      }
+
+      // Since this event listener is intended to close the emoji picker when click outside of it, the event listener is on the window object.
+      window.addEventListener('click', (event) => {
+        emojiPicker.classList.add('hidden')
+      }, { once: true })
+    }
+
+    /**
+     * Handles the emoji click event and inserts the emoji into the textarea.
+     *
+     * @param {string} emoji - The emoji.
+     */
+    #handleEmojiClick (emoji) {
+      const textarea = this.shadowRoot.querySelector('textarea')
+      const valueBeforeSelection = textarea.value.substring(0, textarea.selectionStart)
+      const valueAfterSelection = textarea.value.substring(textarea.selectionEnd, textarea.value.length)
+
+      textarea.value = valueBeforeSelection + emoji + valueAfterSelection
+
+      textarea.focus()
+      textarea.selectionEnd = valueBeforeSelection.length + emoji.length
     }
   }
 )
