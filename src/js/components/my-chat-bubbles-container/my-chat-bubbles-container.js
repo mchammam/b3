@@ -13,11 +13,20 @@ template.innerHTML = `
     display: flex;
     flex-direction: column;
     flex: 1;
-    gap: 1rem;
+    padding-right: 0.5rem;
     min-height: 0;
     height: 100%;
     min-width: 15rem;
     overflow-y: auto;
+  }
+  ::slotted(my-chat-bubble[username]:first-of-type){
+    margin-top: 0;
+  }
+  ::slotted(my-chat-bubble) {
+    margin-top: 1rem;
+  }
+  ::slotted(my-chat-bubble[self]) {
+    margin-top: 0.25rem;
   }
 </style>
 <slot></slot>
