@@ -89,7 +89,7 @@ customElements.define(
           .forEach((button) => {
             button.addEventListener('click', () =>
               this.dispatchEvent(
-                new CustomEvent('my-dock:app-open', {
+                new CustomEvent('my-dock:app-launch', {
                   detail:
                       {
                         title: button.getAttribute('title'),
@@ -101,6 +101,13 @@ customElements.define(
             )
           })
       )
+    }
+
+    /**
+     * Called after the element has been removed from the DOM.
+     */
+    disconnectedCallback () {
+      this.#abortController.abort()
     }
   }
 )

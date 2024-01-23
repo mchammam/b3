@@ -63,7 +63,7 @@ customElements.define(
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-      this.shadowRoot.querySelector('my-dock').addEventListener('my-dock:app-open', (event) => {
+      this.shadowRoot.querySelector('my-dock').addEventListener('my-dock:app-launch', (event) => {
         const title = event.detail.title
         const app = event.detail.app
 
