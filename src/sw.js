@@ -34,7 +34,7 @@ async function cachedData (request) {
   if (cachedResponse) {
     return cachedResponse
   } else {
-    cachedFetch(request)
+    return cachedFetch(request)
   }
 }
 
@@ -52,7 +52,7 @@ async function cachedFetch (request) {
     return response
   }
 
-  cacheResponse(request, response)
+  cacheResponse(request, response.clone())
 
   return response
 }
@@ -66,7 +66,7 @@ async function cachedFetch (request) {
 async function cacheResponse (request, response) {
   try {
     const cache = await caches.open(version)
-    cache.put(request, response.clone())
+    cache.put(request, response)
   } catch {
     console.error('Cache error')
   }

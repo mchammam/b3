@@ -91,9 +91,9 @@ customElements.define(
     /**
      * The username.
      *
-     * @type {string | null}
+     * @type {string}
      */
-    #username = localStorage.getItem('my-chat-app_username')
+    #username = localStorage.getItem('my-chat-app_username') ?? ''
 
     /**
      * Interval id used to reconnect.
@@ -324,8 +324,6 @@ customElements.define(
      */
     #selectChannel (channel) {
       this.#channel = channel
-
-      console.log(`input[value="${channel}"]`)
 
       this.shadowRoot.querySelector(`input[value="${channel}"]`).setAttribute('checked', '')
 

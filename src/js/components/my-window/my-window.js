@@ -115,7 +115,7 @@ customElements.define(
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-      this.shadowRoot.addEventListener('click', (event) => {
+      this.shadowRoot.addEventListener('mousedown', (event) => {
         this.dispatchEvent(new CustomEvent('my-window:focus'))
       }, { signal: this.#abortController.signal })
 
